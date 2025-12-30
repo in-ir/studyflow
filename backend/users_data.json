@@ -1,0 +1,15 @@
+{
+  "378785db-6c8d-4023-a2cf-ee59607714ee": {
+    "id": "378785db-6c8d-4023-a2cf-ee59607714ee",
+    "email": "iirao009@uottawa.ca",
+    "full_name": "Ines Iraoui",
+    "student_id": "",
+    "password_hash": "$2b$12$C.SNfP4ZGqfVIl4HcL34GeMPjMa5olZzkrGxNlOie.4BbO5WoKW8S",
+    "created_at": "2025-10-13T14:30:59.143956",
+    "enrolled_courses": [
+      "CSI 2110",
+      "CSI 2520",
+      "MAT 2541"
+    ]
+  }
+}
