@@ -457,7 +457,7 @@ def login(user_data: UserLogin):
             user_id = uid
             break
     
-    if not user or not verify_password(user_data.password, user["password_hash"]):
+    if not user or not user.get("password_hash") or not verify_password(user_data.password, user["password_hash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
@@ -477,6 +477,50 @@ def login(user_data: UserLogin):
             "enrolled_courses": user.get("enrolled_courses", [])
         }
     }
+
+# Courses a fresh guest starts out enrolled in, so the demo dashboard is not empty.
+GUEST_SEED_COURSES = ["CSI 2110", "CSI 2120", "MAT 1341", "SEG 2105"]
+
+
+@app.post("/auth/guest")
+def guest_login():
+    """Create a throwaway guest account for the public demo.
+
+    Each click gets its own isolated sandbox, so concurrent visitors never see
+    one another's data. Guests are held in memory only and deliberately never
+    written to disk: they vanish on restart, which is exactly what we want, and
+    they cannot grow the user file unbounded. The empty password_hash makes the
+    account unreachable through /auth/login.
+    """
+    guest_id = str(uuid.uuid4())
+    USERS_DATABASE[guest_id] = {
+        "id": guest_id,
+        "email": f"guest-{guest_id[:8]}@guest.studyflow.app",
+        "full_name": "Guest",
+        "student_id": "",
+        "password_hash": "",
+        "created_at": datetime.utcnow(),
+        "enrolled_courses": list(GUEST_SEED_COURSES),
+        "is_guest": True,
+    }
+
+    access_token = create_access_token(data={"sub": guest_id})
+    user = USERS_DATABASE[guest_id]
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": guest_id,
+            "email": user["email"],
+            "full_name": user["full_name"],
+            "student_id": user["student_id"],
+            "created_at": user["created_at"],
+            "enrolled_courses": user["enrolled_courses"],
+            "is_guest": True,
+        },
+    }
+
 
 @app.get("/auth/me")
 def get_current_user(user: dict = Depends(verify_token)):
@@ -557,9 +601,15 @@ def get_user_courses(user: dict = Depends(verify_token)):
     courses = load_courses_efficiently()
     enrolled_course_codes = user.get("enrolled_courses", [])
     
+    # The scraped catalog contains repeated entries for ~255 course codes, so
+    # match on each code only once. Without this the dashboard renders a course
+    # several times and React warns about duplicate keys.
     enrolled_courses = []
+    seen_codes = set()
     for course in courses:
-        if course.get("code") in enrolled_course_codes:
+        code = course.get("code")
+        if code in enrolled_course_codes and code not in seen_codes:
+            seen_codes.add(code)
             enrolled_courses.append(course)
     
     return {

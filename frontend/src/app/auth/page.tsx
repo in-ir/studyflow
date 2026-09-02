@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, Mail, Lock, User, CreditCard, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { API_BASE_URL } from "../utils/api";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -70,6 +71,37 @@ export default function AuthPage() {
     if (name === "password") validatePassword(value);
   };
 
+  const handleGuest = async () => {
+    setLoading(true);
+    setMessage({ type: "", text: "" });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/guest`, {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("auth_token", data.access_token);
+        localStorage.setItem("auth_user", JSON.stringify(data.user));
+        setMessage({ type: "success", text: "Starting guest session..." });
+        setTimeout(() => router.push("/"), 600);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.detail || "Could not start a guest session",
+        });
+      }
+    } catch {
+      setMessage({
+        type: "error",
+        text: "Network error. Please check if the backend is running.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -101,7 +133,7 @@ export default function AuthPage() {
         ? { email: formData.email, password: formData.password }
         : formData;
 
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -351,6 +383,28 @@ export default function AuthPage() {
                   <span>{isLogin ? "Sign in" : "Create account"}</span>
                 )}
               </button>
+
+              <div className="flex items-center gap-4 mt-6">
+                <div className="h-px flex-1 bg-white/10"></div>
+                <span className="text-gray-500 text-xs uppercase tracking-wider">
+                  or
+                </span>
+                <div className="h-px flex-1 bg-white/10"></div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGuest}
+                disabled={loading}
+                className="w-full mt-6 bg-transparent hover:bg-white/5 text-gray-300 hover:text-white py-4 rounded-lg font-medium transition-all border border-white/15 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Continue as guest
+              </button>
+
+              <p className="text-gray-500 text-xs text-center mt-3">
+                Explore the full app instantly. Guest data is temporary and is
+                cleared when the server restarts.
+              </p>
             </form>
           </div>
 

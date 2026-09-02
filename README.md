@@ -11,6 +11,7 @@ A modern learning management system built as an alternative to Brightspace for U
 - **Smart Scheduling** — Interactive calendar with automatic conflict detection and time slot management
 - **Assignment Tracking** — Priority levels, status updates, and deadline management
 - **Secure Authentication** — JWT-based auth with bcrypt password hashing and protected API routes
+- **Guest Mode** — one click to explore the full app with a pre-enrolled sandbox account, no signup required
 
 ## Tech Stack
 
@@ -148,6 +149,17 @@ To configure it by hand instead:
    - `FRONTEND_ORIGINS` — your Vercel URL, e.g. `https://studyflow.vercel.app`
    - `ENVIRONMENT` — `production`
 6. Deploy, then set `NEXT_PUBLIC_API_URL` on Vercel to the resulting Render URL and redeploy the frontend.
+
+### Guest mode
+
+Because accounts do not survive a restart (see below), the login screen offers
+**Continue as guest**. Each click calls `POST /auth/guest`, which mints a
+throwaway account pre-enrolled in a few courses and returns a normal JWT, so a
+visitor sees a populated app immediately without signing up.
+
+Guests exist in memory only and are never written to disk: every visitor gets an
+isolated sandbox, and they cost nothing to clean up. The account has no password
+hash, so it cannot be reached through `/auth/login`.
 
 ### ⚠️ A note on data persistence
 

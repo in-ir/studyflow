@@ -35,6 +35,7 @@ import {
   Square,
   MapPin,
 } from "lucide-react";
+import { API_BASE_URL } from "./utils/api";
 
 // Define interfaces
 interface Course {
@@ -195,7 +196,7 @@ export default function Dashboard() {
 
     const loadEnrolledCourses = async () => {
       try {
-        const response = await fetch("http://localhost:8000/user/courses", {
+        const response = await fetch(`${API_BASE_URL}/user/courses`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -236,7 +237,7 @@ export default function Dashboard() {
   const handleLogout = async () => {
     try {
       if (token) {
-        await fetch("http://localhost:8000/auth/logout", {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -272,7 +273,7 @@ export default function Dashboard() {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/user/enroll/${apiCourse.code}`,
+          `${API_BASE_URL}/user/enroll/${apiCourse.code}`,
           {
             method: "POST",
             headers: {
@@ -309,7 +310,7 @@ export default function Dashboard() {
     if (confirm(`Are you sure you want to unenroll from ${courseCode}?`)) {
       try {
         const response = await fetch(
-          `http://localhost:8000/user/unenroll/${courseCode}`,
+          `${API_BASE_URL}/user/unenroll/${courseCode}`,
           {
             method: "DELETE",
             headers: {
@@ -783,7 +784,7 @@ function CourseSelectionPage({
   useEffect(() => {
     const loadSubjects = async () => {
       try {
-        const response = await fetch("http://localhost:8000/courses/subjects");
+        const response = await fetch(`${API_BASE_URL}/courses/subjects`);
         if (response.ok) {
           const data = await response.json();
           setSubjects(data.subjects || []);
@@ -799,7 +800,7 @@ function CourseSelectionPage({
     const loadInitialCourses = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/courses/all?limit=50"
+          `${API_BASE_URL}/courses/all?limit=50`
         );
         if (response.ok) {
           const data = await response.json();
@@ -818,7 +819,7 @@ function CourseSelectionPage({
     if (!searchTerm.trim() && !selectedSubject) {
       try {
         const response = await fetch(
-          "http://localhost:8000/courses/all?limit=100"
+          `${API_BASE_URL}/courses/all?limit=100`
         );
         if (response.ok) {
           const data = await response.json();
@@ -834,13 +835,13 @@ function CourseSelectionPage({
     try {
       let searchUrl = "";
       if (selectedSubject && !searchTerm.trim()) {
-        searchUrl = `http://localhost:8000/courses/subject/${selectedSubject}`;
+        searchUrl = `${API_BASE_URL}/courses/subject/${selectedSubject}`;
       } else if (searchTerm.trim()) {
         const params = new URLSearchParams();
         params.append("q", searchTerm.trim());
         if (selectedSubject) params.append("subject", selectedSubject);
         params.append("limit", "100");
-        searchUrl = `http://localhost:8000/courses/search?${params.toString()}`;
+        searchUrl = `${API_BASE_URL}/courses/search?${params.toString()}`;
       }
 
       if (searchUrl) {
@@ -1164,7 +1165,7 @@ function SchedulePage({
 
   const loadSchedule = async () => {
     try {
-      const response = await fetch("http://localhost:8000/schedule", {
+      const response = await fetch(`${API_BASE_URL}/schedule`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -1185,7 +1186,7 @@ function SchedulePage({
 
   const checkConflicts = async () => {
     try {
-      const response = await fetch("http://localhost:8000/schedule/conflicts", {
+      const response = await fetch(`${API_BASE_URL}/schedule/conflicts`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -1703,7 +1704,7 @@ function AddScheduleForm({
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/schedule/manual", {
+      const response = await fetch(`${API_BASE_URL}/schedule/manual`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1988,7 +1989,7 @@ function AssignmentsPage({
       if (filter.priority) params.append("priority", filter.priority);
 
       const response = await fetch(
-        `http://localhost:8000/assignments?${params.toString()}`,
+        `${API_BASE_URL}/assignments?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -2011,7 +2012,7 @@ function AssignmentsPage({
   const loadStats = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/assignments/summary/stats",
+        `${API_BASE_URL}/assignments/summary/stats`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -2034,7 +2035,7 @@ function AssignmentsPage({
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/assignments/${assignmentId}`,
+        `${API_BASE_URL}/assignments/${assignmentId}`,
         {
           method: "PUT",
           headers: {
@@ -2397,7 +2398,7 @@ function CreateAssignmentForm({
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/assignments", {
+      const response = await fetch(`${API_BASE_URL}/assignments`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -2659,7 +2660,7 @@ function AIAssistantPage() {
       formData.append("message", inputMessage.trim());
       if (selectedFile) formData.append("file", selectedFile);
 
-      const response = await fetch("http://localhost:8000/ai/chat", {
+      const response = await fetch(`${API_BASE_URL}/ai/chat`, {
         method: "POST",
         body: formData,
       });
