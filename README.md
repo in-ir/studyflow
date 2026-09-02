@@ -124,6 +124,14 @@ The frontend and backend deploy separately.
 
 ### Backend → Render
 
+The repository includes [`render.yaml`](render.yaml), so the quickest path is
+**New → Blueprint → select this repo**: Render reads the build command, start
+command, health check and Python version from it, and generates a strong
+`JWT_SECRET_KEY` for you. You still set `FRONTEND_ORIGINS` and
+`ANTHROPIC_API_KEY` in the dashboard, since those are not stored in the repo.
+
+To configure it by hand instead:
+
 1. Create a new **Web Service** from the repository.
 2. **Root Directory:** `backend`
 3. **Build Command:**

@@ -54,6 +54,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Data files live next to this module. Anchor to __file__ rather than the process
+# working directory, which differs across hosts (Render, Docker, systemd).
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_FILE = os.path.join(BASE_DIR, "users_data.json")
+COURSES_FILE = os.path.join(BASE_DIR, "fast_scraped_courses.json")
+
 # Global variables
 COURSES_DATABASE = None
 SUBJECTS_CACHE = None
@@ -136,7 +142,7 @@ class AssignmentUpdate(BaseModel):
 def save_users_to_file():
     """Save users database to file for persistence"""
     try:
-        with open('users_data.json', 'w') as f:
+        with open(USERS_FILE, 'w') as f:
             users_to_save = {}
             for user_id, user_data in USERS_DATABASE.items():
                 user_copy = user_data.copy()
@@ -150,8 +156,8 @@ def load_users_from_file():
     """Load users database from file"""
     global USERS_DATABASE
     try:
-        if os.path.exists('users_data.json'):
-            with open('users_data.json', 'r') as f:
+        if os.path.exists(USERS_FILE):
+            with open(USERS_FILE, 'r') as f:
                 users_loaded = json.load(f)
                 for user_id, user_data in users_loaded.items():
                     user_data['created_at'] = datetime.fromisoformat(user_data['created_at'])
@@ -219,8 +225,8 @@ def load_courses_efficiently():
         print("📚 Loading all courses...")
         start_time = time.time()
         
-        if os.path.exists("fast_scraped_courses.json"):
-            with open("fast_scraped_courses.json", 'r') as f:
+        if os.path.exists(COURSES_FILE):
+            with open(COURSES_FILE, 'r') as f:
                 data = json.load(f)
                 COURSES_DATABASE = data.get('courses', [])
                 
