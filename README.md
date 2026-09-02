@@ -1,17 +1,33 @@
 # StudyFlow
 
-A modern learning management system built as an alternative to Brightspace for University of Ottawa students. Features course management, AI-powered study assistance, and interactive scheduling.
+**A study planner for University of Ottawa students — built as a friendlier alternative to Brightspace.**
 
-**Live demo:** _not yet deployed — see [Deployment](#deployment)_
+### ▶ [Try the live demo](https://studyflow-beta-nine.vercel.app)
 
-## Features
+No signup needed. Click **Continue as guest** and you land in a working account
+that is already enrolled in a few courses, so you can look around straight away.
 
-- **Course Management** — Integrated with 4,302 real courses across 25 subjects, scraped from the uOttawa catalog
-- **AI Study Assistant** — Claude-powered assistant supporting PDF, TXT, and DOCX file uploads
-- **Smart Scheduling** — Interactive calendar with automatic conflict detection and time slot management
-- **Assignment Tracking** — Priority levels, status updates, and deadline management
-- **Secure Authentication** — JWT-based auth with bcrypt password hashing and protected API routes
-- **Guest Mode** — one click to explore the full app with a pre-enrolled sandbox account, no signup required
+> The API is hosted on a free tier that sleeps when idle. If the first page sits
+> loading for up to a minute, it is waking up — it is quick after that.
+
+## What it is
+
+Course registration tells you what you are taking. It does not help you actually
+get through the term. StudyFlow is the layer on top: the place where your courses,
+your deadlines, your timetable and your questions live together.
+
+Sign in and you can:
+
+- **Find your courses.** Search the real uOttawa catalog — 4,302 courses across
+  25 subjects, scraped from the course listings — and enrol in the ones you are taking.
+- **See your week.** Add lecture, lab and tutorial times to a calendar that
+  flags conflicts before you commit to a schedule that cannot work.
+- **Stay on top of the work.** Track assignments with due dates, priorities and
+  status, so what is urgent is obvious at a glance.
+- **Ask for help.** A built-in assistant, powered by Claude, answers questions
+  about your courses and reads course outlines you upload as PDF, DOCX or TXT.
+
+It is a personal project, not affiliated with the University of Ottawa.
 
 ## Tech Stack
 
