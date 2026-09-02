@@ -37,9 +37,19 @@ claude_available = initialize_claude()
 app = FastAPI()
 
 # Add CORS middleware
+# Comma-separated list of allowed browser origins, e.g.
+#   FRONTEND_ORIGINS=https://studyflow.vercel.app,https://www.studyflow.app
+# Defaults to the local Next.js dev server.
+FRONTEND_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=FRONTEND_ORIGINS,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -52,7 +62,23 @@ ASSIGNMENTS_DATABASE = {}
 SCHEDULE_DATABASE = {}
 
 # JWT Configuration
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-this-in-production")
+DEFAULT_SECRET_KEY = "your-secret-key-change-this-in-production"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", DEFAULT_SECRET_KEY)
+
+if SECRET_KEY == DEFAULT_SECRET_KEY:
+    # Anyone who knows this default can forge tokens for any account, so refuse
+    # to boot with it outside of local development.
+    if os.getenv("ENVIRONMENT", "development").lower() == "production":
+        raise RuntimeError(
+            "JWT_SECRET_KEY is unset and the insecure default is in use. "
+            "Set JWT_SECRET_KEY to a long random string before running in production, e.g. "
+            "python3 -c 'import secrets; print(secrets.token_urlsafe(64))'"
+        )
+    print(
+        "\u26a0\ufe0f  JWT_SECRET_KEY not set - using the insecure default. "
+        "Fine for local development, but set JWT_SECRET_KEY before deploying."
+    )
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -240,16 +266,19 @@ async def read_uploaded_file(file: UploadFile) -> str:
         
         elif file.content_type == "application/pdf":
             try:
-                import PyPDF2
+                from pypdf import PdfReader
                 from io import BytesIO
                 pdf_file = BytesIO(content)
-                reader = PyPDF2.PdfReader(pdf_file)
+                reader = PdfReader(pdf_file)
                 text = ""
                 for page in reader.pages:
-                    text += page.extract_text()
+                    # Image-only or malformed pages return None rather than "".
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text
                 return text[:5000]
             except ImportError:
-                return f"[PDF file received: {file.filename} - Install PyPDF2: pip install PyPDF2]"
+                return f"[PDF file received: {file.filename} - Install pypdf: pip install pypdf]"
         
         elif file.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             try:
