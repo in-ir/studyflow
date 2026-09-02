@@ -26,3 +26,5 @@ build/
 # Logs
 *.log
 
+# Local flat-file data store (contains user PII: names, emails, password hashes)
+backend/users_data.json
