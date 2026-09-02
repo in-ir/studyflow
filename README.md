@@ -161,14 +161,6 @@ Guests exist in memory only and are never written to disk: every visitor gets an
 isolated sandbox, and they cost nothing to clean up. The account has no password
 hash, so it cannot be reached through `/auth/login`.
 
-### ⚠️ A note on data persistence
-
-User accounts, assignments, and schedules are stored in **JSON flat files on local disk** (`backend/users_data.json`), not in a database. Render's filesystem — like most platform-as-a-service hosting — is **ephemeral**: it is wiped on every deploy, restart, and periodic instance recycle. **All registered users and their data will be lost.**
-
-This is fine for a demo, but before real use you should migrate persistence to a managed database (Render PostgreSQL, Supabase, or similar), or at minimum attach a Render persistent disk and point the data files at it.
-
-`backend/users_data.json` is gitignored, as it contains real names, email addresses, and password hashes.
-
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
